@@ -11,7 +11,7 @@ resourcecontainers
 |project id, subName = name, subscriptionId, managedBy, managementGroupName = mgmt.displayName
 ```
 
-1. Keep the management group hierarchy reasonably flat, with no more than three to four levels ideally. This restriction reduces management overhead and complexity.
+2. Keep the management group hierarchy reasonably flat, with no more than three to four levels ideally. This restriction reduces management overhead and complexity.
 
 ```kusto
 resourcecontainers

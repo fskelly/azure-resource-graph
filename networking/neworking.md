@@ -29,3 +29,22 @@ resources
 | extend subnetMask = split(CIDR,'/')[1]
 | where subnetMask >= 27
 ```
+
+**Use IP addresses from the address allocation for private internets (RFC 1918).**[Plan for IP addressing](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/plan-for-ip-addressing)
+
+```kusto
+resources | where type == 'microsoft.network/virtualnetworks' | extend addressSpace = todynamic(properties.addressSpace) | extend addressPrefix = todynamic(properties.addressSpace.addressPrefixes) | mvexpand addressSpace | mvexpand addressPrefix | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix | where cidr matches regex @'^(?:10|127|172\\.(?:1[6-9]|2[0-9]|3[01])|192\\.168)\\..*'
+```
+
+```kusto
+resources | where type == 'microsoft.network/virtualnetworks' | extend addressSpace = todynamic(properties.addressSpace) | extend addressPrefix = todynamic(properties.addressSpace.addressPrefixes) | mvexpand addressSpace | mvexpand addressPrefix | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix | where not (cidr matches regex @'^(?:10|127|172\\.(?:1[6-9]|2[0-9]|3[01])|192\\.168)\\..*')
+```
+
+**Don't create unnecessarily large virtual networks (for example, /16) to ensure that IP address space isn't wasted. [Plan for IP addressing](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/plan-for-ip-addressing)**
+
+```kusto
+resources | where type == 'microsoft.network/virtualnetworks' | extend addressSpace = todynamic(properties.addressSpace) | extend addressPrefix = todynamic(properties.addressSpace.addressPrefixes) | mvexpand addressSpace | mvexpand addressPrefix | extend addressMask = split(addressPrefix,'/')[1] | where addressMask > 16 | project name, id, subscriptionId, resourceGroup, addressPrefix
+```
+```kusto
+resources | where type == 'microsoft.network/virtualnetworks' | extend addressSpace = todynamic(properties.addressSpace) | extend addressPrefix = todynamic(properties.addressSpace.addressPrefixes) | mvexpand addressSpace | mvexpand addressPrefix | extend addressMask = split(addressPrefix,'/')[1] | where addressMask <= 16 | project name, id, subscriptionId, resourceGroup, addressPrefix
+```
