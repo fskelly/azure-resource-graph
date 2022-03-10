@@ -9,4 +9,4 @@ These queries are designed to be run in [Azure Resource Graph](https://docs.micr
 
 - [Keyvault queries](https://github.com/fskelly/azure-resource-graph/blob/f8ae4428c0c8371d04ef45c65ef53fdd9a3f624d/keyVaults)
 - [Management Group queries](https://github.com/fskelly/azure-resource-graph/blob/d2d469fdefb9722fdfc60b422fffe48d15f1dcb3/managementGroups/managementGroups.md)
-- [Networking queries](networking\neworking.md)
+- [Networking queries](/networking/neworking.md)
