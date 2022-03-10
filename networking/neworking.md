@@ -58,7 +58,7 @@ resources
 | mvexpand addressSpace 
 | mvexpand addressPrefix 
 | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix 
-| where cidr matches regex @'^(?:10|127|172\\.(?:1[6-9]|2[0-9]|3[01])|192\\.168)\\..*'
+| where (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,cidr
 ```
 
 ❌ **NOT** RFC 1918 Compliant
@@ -71,5 +71,18 @@ resources
 | mvexpand addressSpace 
 | mvexpand addressPrefix 
 | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix 
-| where not (cidr matches regex @'^(?:10|127|172\\.(?:1[6-9]|2[0-9]|3[01])|192\\.168)\\..*')
+| where not (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,cidr
+```
+
+✅❌ Combined Check
+
+```kusto
+resources 
+| where type == 'microsoft.network/virtualnetworks' 
+| extend addressSpace = todynamic(properties.addressSpace) 
+| extend addressPrefix = todynamic(properties.addressSpace.addressPrefixes) 
+| mvexpand addressSpace 
+| mvexpand addressPrefix 
+| project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix 
+| extend Compliant = (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,Compliant,cidr
 ```
