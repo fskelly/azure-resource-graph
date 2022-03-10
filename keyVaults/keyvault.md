@@ -35,3 +35,25 @@ ResourceContainers
 | project-away ResourceCount
 | where RCount == 1
 ```
+
+✅❌ Combined Check
+
+```kusto
+ResourceContainers 
+| where type=='microsoft.resources/subscriptions'
+| parse id with "/subscriptions/" SubscriptionID
+| project subscriptionId, SubscriptionName = name
+| join kind=leftouter (
+Resources
+| where type == 'microsoft.keyvault/vaults'
+| project id, name, subscriptionId
+) on subscriptionId
+| join kind= leftouter (
+Resources
+| where type == 'microsoft.keyvault/vaults'
+| summarize ResourceCount = count() by subscriptionId
+) on subscriptionId
+| extend RCount = iff(isnull(ResourceCount), 0, ResourceCount)
+| project-away ResourceCount
+| extend Compliant = (RCount <> 1)
+```
