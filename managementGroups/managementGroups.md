@@ -32,3 +32,12 @@ resourcecontainers
 | where array_length(mgmtChain) > 4
 |mvexpand mgmt=mgmtChain
 ```
+
+✅❌ Combined Check
+
+```kusto
+resourcecontainers
+| where type == "microsoft.resources/subscriptions"
+| extend ManagementGroup = tostring(tags),mgmtChain = properties.managementGroupAncestorsChain
+| extend Compliant =( array_length(mgmtChain) < 4 and array_length(mgmtChain) > 1)
+```
