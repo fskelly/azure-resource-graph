@@ -106,8 +106,9 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
-| where SKUTier != "Basic"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier != "Basic" and SKUTier != "Standard"
 ```
 
 ❌ VPN gateway not to use basic in production
@@ -115,8 +116,9 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
-| where SKUTier == "Basic"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier == "Basic" or SKUTier == "Standard"
 ```
 
 ✅❌ Combined Check
@@ -124,8 +126,9 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
-| extend Compliant = SKUTier != "Basic"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend Compliant = SKUTier != "Basic" and SKUTier != "Standard"
 | project name, id, subscriptionId, resourceGroup, Compliant
 ```
 
@@ -134,8 +137,10 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
 | where SKUTier contains "AZ"
+| project name, id, subscriptionId, resourceGroup, Type
 ```
 
 ❌ Gateway deployed in Availability Zone
@@ -143,8 +148,10 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
 | where SKUTier notcontains "AZ"
+| project name, id, subscriptionId, resourceGroup, Type
 ```
 
 ✅❌ Combined Check
@@ -152,7 +159,8 @@ resources
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
-| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
 | extend Compliant = SKUTier contains "AZ"
-| project name, id, subscriptionId, resourceGroup, Compliant
+| project name, id, subscriptionId, resourceGroup, Type, Compliant
 ```
