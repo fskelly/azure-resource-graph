@@ -108,7 +108,7 @@ resources
 | where type == "microsoft.network/virtualnetworkgateways"
 | where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
 | extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
-| where SKUTier != "Basic" and SKUTier != "Standard"
+| where SKUTier !in ("Basic", "Standard")
 ```
 
 ❌ VPN gateway not to use basic in production
@@ -118,7 +118,7 @@ resources
 | where type == "microsoft.network/virtualnetworkgateways"
 | where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
 | extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
-| where SKUTier == "Basic" or SKUTier == "Standard"
+| where SKUTier in ("Basic", "Standard")
 ```
 
 ✅❌ Combined Check
@@ -128,7 +128,7 @@ resources
 | where type == "microsoft.network/virtualnetworkgateways"
 | where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
 | extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
-| extend Compliant = SKUTier != "Basic" and SKUTier != "Standard"
+| extend Compliant = SKUTier !in ("Basic", "Standard")
 | project name, id, subscriptionId, resourceGroup, Compliant
 ```
 
