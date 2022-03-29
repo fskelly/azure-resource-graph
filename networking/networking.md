@@ -100,3 +100,32 @@ resources
 | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix 
 | extend Compliant = (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,Compliant,cidr
 ```
+
+✅ Gateway deployed in Availability Zone
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where SKUTier contains "AZ"
+
+```kusto
+
+```
+
+❌ Gateway deployed in Availability Zone
+
+```kusto
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where SKUTier notcontains "AZ"
+```
+
+✅❌ Combined Check
+
+```kusto
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| extend Compliant = SKUTier contains "AZ"
+| project name, id, subscriptionId, resourceGroup, Compliant
+```
