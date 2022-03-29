@@ -102,6 +102,7 @@ resources
 ```
 
 ✅ VPN gateway not to use basic in production
+
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
@@ -110,6 +111,7 @@ resources
 ```
 
 ❌ VPN gateway not to use basic in production
+
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
@@ -118,10 +120,39 @@ resources
 ```
 
 ✅❌ Combined Check
+
 ```kusto
 resources
 | where type == "microsoft.network/virtualnetworkgateways"
 | extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
 | extend Compliant = SKUTier != "Basic"
+| project name, id, subscriptionId, resourceGroup, Compliant
+```
+
+✅ Gateway deployed in Availability Zone
+
+```kusto
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where SKUTier contains "AZ"
+```
+
+❌ Gateway deployed in Availability Zone
+
+```kusto
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where SKUTier notcontains "AZ"
+```
+
+✅❌ Combined Check
+
+```kusto
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| extend Compliant = SKUTier contains "AZ"
 | project name, id, subscriptionId, resourceGroup, Compliant
 ```
