@@ -98,7 +98,7 @@ resources
 | mvexpand addressSpace 
 | mvexpand addressPrefix 
 | project name, id, location, resourceGroup, subscriptionId, cidr = addressPrefix 
-| extend Compliant = (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,Compliant,cidr
+| extend Compliant= (cidr matches regex @'^(10(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){3}|((172\.(1[6-9]|2[0-9]|3[01]))|192\.168)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|[0-9]{1,2})){2})')  | project name, id, subscriptionId, resourceGroup,cidr,Compliant
 ```
 
 ✅ VPN gateway not to use basic in production
