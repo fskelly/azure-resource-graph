@@ -1,0 +1,192 @@
+Resources
+| where type contains 'publicIPAddresses' and isnotempty(properties.ipAddress)
+
+Resources
+| where type == "microsoft.network/publicipaddresses"
+| extend ipconfid = properties.ipConfiguration.id
+| where ipconfid has "virtualNetworkGateways"
+//| parse ipconfid with * "/providers/" resourceProvider "/" *
+//| where resourceProvider == "Microsoft.Network"
+//| parse ipconfid with * "/virtualNetworkGateways/" resourceProvider "/" *
+//| where resourceProvider == "virtualNetworkGateways"
+
+Resources
+| where type == "microsoft.network/publicipaddresses"
+| extend ipconfid = properties.ipConfiguration.id
+| where ipconfid has "virtualNetworkGateways"
+
+Resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend pipID = properties.ipConfigurations[0].properties.publicIPAddress.id
+
+
+Resources
+| where type == "microsoft.network/publicipaddresses"
+| extend ipconfid = properties.ipConfiguration.id
+| where ipconfid has "virtualNetworkGateways"
+| extend pipID = id
+| join kind=leftouter (
+Resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend pipID = properties.ipConfigurations[0].properties.publicIPAddress.id
+| extend pipID = tostring(pipID)
+) on pipID
+
+
+Resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend pipID = properties.ipConfigurations[0].properties.publicIPAddress.id
+| extend pipID = tostring(pipID)
+| join kind=leftouter (
+Resources
+| where type == "microsoft.network/publicipaddresses"
+| extend ipconfid = properties.ipConfiguration.id
+| where ipconfid has "virtualNetworkGateways"
+| extend pipID = id
+) on pipID
+
+resourcecontainers| where type == 'microsoft.resources/subscriptions'| extend ManagementGroup = tostring(tags),mgmtChain = properties.managementGroupAncestorsChain| extend Compliant = (array_length(mgmtChain) > 1)
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| project subscriptionId, resourceGroup, name, ipcoinfg=properties.ipConfigurations
+| mv-expand ipcoinfg
+| project subscriptionId, resourceGroup, name, id=tostring(ipcoinfg.properties.publicIPAddress.id)
+| join kind=inner (resources
+| where type == "microsoft.network/publicipaddresses"
+| project subscriptionId, resourceGroup, id, zones) on id
+| project subscriptionId, resourceGroup, name, zones
+
+
+resources
+| where type == "microsoft.avs/privateclouds"
+
+resources
+| extend Compliant = isnotnull(['tags'])
+| mvexpand tags
+    | extend tagKey = tostring(bag_keys(tags)[0])
+    | extend tagValue = tostring(tags[tagKey])
+| project name, id, subscriptionId, resourceGroup, tags, tagKey,tagValue ,Compliant
+
+resources
+| extend Compliant = isnotnull(['tags'])
+| project name, id, subscriptionId, resourceGroup, tags ,Compliant
+
+
+resourcecontainers
+| where type == 'microsoft.resources/subscriptions'
+| extend ManagementGroup = tostring(tags),mgmtChain = properties.managementGroupAncestorsChain
+| extend Compliant =( array_length(mgmtChain) < 4 and array_length(mgmtChain) > 1)
+
+resourcecontainers
+| where type == 'microsoft.resources/subscriptions'
+| extend ManagementGroup = tostring(tags),mgmtChain = properties.managementGroupAncestorsChain
+| extend Compliant = (array_length(mgmtChain) > 1)
+
+resources
+| where type == "microsoft.network/vpngateways"
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier
+| where SKUTier == "Basic"
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend Compliant = SKUTier contains "AZ"
+| project name, id, subscriptionId, resourceGroup, Type, Compliant
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType == "ExpressRoute"
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend Compliant = SKUTier contains "AZ"
+| project name, id, subscriptionId, resourceGroup, Compliant
+
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier notcontains "AZ"
+| project name, id, subscriptionId, resourceGroup, Type
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier != "Basic" and SKUTier != "Standard"
+| project name, id, subscriptionId, resourceGroup, Type
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier == "Basic" or SKUTier == "Standard"
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier != "Basic" and SKUTier != "Standard"
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier !in ("Basic", "Standard")
+
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend Compliant = SKUTier != "Basic" and SKUTier != "Standard"
+| project name, id, subscriptionId, resourceGroup, Compliant
+
+resources
+| where isnull(['tags'] )
+| project name, id, subscriptionId, resourceGroup, Compliant
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier !in ("Basic", "Standard")
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier != "Basic" and SKUTier != "Standard"
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| where SKUTier in ("Basic", "Standard")
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend Compliant = SKUTier != "Basic" and SKUTier != "Standard"
+| project name, id, subscriptionId, resourceGroup, Compliant
+
+resources
+| where type == "microsoft.network/virtualnetworkgateways"
+| where properties.gatewayType =~ "vpn" or properties.gatewayType == "ExpressRoute"
+| extend SKUName = properties.sku.name, SKUTier = properties.sku.tier, Type = properties.gatewayType
+| extend status = iff(SKUTier in ("Basic", "Standard"), "Unhealthy", "Healthy")
+| extend Compliant = SKUTier !in ("Basic", "Standard")
+| project name, id, subscriptionId, resourceGroup, Compliant
